@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏调试测试</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #debugInfo {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-width: 300px;
+            z-index: 1000;
+        }
+        .debug-button {
+            margin: 5px;
+            padding: 5px 10px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="debugInfo">
+        <h4>调试信息</h4>
+        <div id="gameStateInfo">游戏状态: 未知</div>
+        <div id="elementsInfo">元素检查: 未检查</div>
+        <div id="errorInfo">错误: 无</div>
+        <button class="debug-button" onclick="checkElements()">检查元素</button>
+        <button class="debug-button" onclick="testStartGame()">测试开始游戏</button>
+    </div>
+
+    <div id="gameContainer">
+        <div id="gameUI">
+            <div id="hud">
+                <div id="score">分数: <span id="scoreValue">0</span></div>
+                <div id="level">关卡: <span id="levelValue">1</span></div>
+                <div id="lives">生命: <span id="livesValue">3</span></div>
+                <div id="bombs">炸弹: <span id="bombsValue">0</span></div>
+            </div>
+            <div id="powerUps">
+                <div id="invincibilityTimer" class="powerup-indicator" style="display: none;">
+                    无敌: <span id="invincibilityTime">0</span>s
+                </div>
+                <div id="weaponBoost" class="powerup-indicator" style="display: none;">
+                    武器增强
+                </div>
+            </div>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="gameMenu" class="menu">
+            <h1>太空战机 - 调试版</h1>
+            <div id="weaponPersistOption" class="option-group">
+                <label for="weaponPersist">武器强化效果:</label>
+                <select id="weaponPersist" class="option-select">
+                    <option value="permanent">保持持续 (直到失去生命)</option>
+                    <option value="timed">限时15秒</option>
+                </select>
+            </div>
+            <div id="backgroundOption" class="option-group">
+                <label for="backgroundSelect">游戏背景:</label>
+                <select id="backgroundSelect" class="option-select">
+                    <option value="default">默认星空</option>
+                    <option value="background1.png">背景1</option>
+                    <option value="background2.png">背景2</option>
+                </select>
+            </div>
+            <button id="startButton" class="menu-button">开始游戏</button>
+            <button id="instructionsButton" class="menu-button">游戏说明</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script>
+        function updateDebugInfo() {
+            if (window.game) {
+                document.getElementById('gameStateInfo').textContent = `游戏状态: ${window.game.gameState}`;
+            }
+        }
+
+        function checkElements() {
+            const elements = {
+                'startButton': document.getElementById('startButton'),
+                'weaponPersist': document.getElementById('weaponPersist'),
+                'backgroundSelect': document.getElementById('backgroundSelect'),
+                'gameCanvas': document.getElementById('gameCanvas')
+            };
+            
+            let info = '元素检查:\n';
+            for (const [name, element] of Object.entries(elements)) {
+                info += `${name}: ${element ? '✓' : '✗'}\n`;
+            }
+            document.getElementById('elementsInfo').innerHTML = info.replace(/\n/g, '<br>');
+        }
+
+        function testStartGame() {
+            try {
+                if (window.game) {
+                    console.log('调用 startGame 方法...');
+                    console.log('游戏启动前状态:', window.game.gameState);
+                    
+                    window.game.startGame();
+                    
+                    console.log('游戏启动后状态:', window.game.gameState);
+                    console.log('玩家对象:', window.game.player);
+                    console.log('Canvas上下文:', window.game.ctx);
+                    
+                    updateDebugInfo();
+                    
+                    // 检查菜单是否隐藏
+                    const gameMenu = document.getElementById('gameMenu');
+                    const menuDisplay = gameMenu ? gameMenu.style.display : 'unknown';
+                    console.log('游戏菜单显示状态:', menuDisplay);
+                    
+                    document.getElementById('errorInfo').innerHTML = `错误: 无 - 游戏启动成功<br>菜单状态: ${menuDisplay}`;
+                } else {
+                    document.getElementById('errorInfo').textContent = '错误: 游戏实例不存在';
+                }
+            } catch (error) {
+                console.error('启动游戏时出错:', error);
+                document.getElementById('errorInfo').textContent = `错误: ${error.message}`;
+            }
+        }
+
+        // 监听游戏状态变化
+        setInterval(updateDebugInfo, 1000);
+        
+        // 页面加载完成后检查元素
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                checkElements();
+                updateDebugInfo();
+            }, 500);
+        });
+
+        // 捕获全局错误
+        window.addEventListener('error', (event) => {
+            document.getElementById('errorInfo').textContent = `全局错误: ${event.error.message}`;
+            console.error('全局错误:', event.error);
+        });
+    </script>
+</body>
+</html>

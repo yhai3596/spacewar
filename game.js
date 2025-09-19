@@ -55,27 +55,46 @@ class SpaceFighterGame {
         ];
 
         let loadedCount = 0;
+        const totalImages = imageFiles.length;
+
+        // 设置超时，确保即使图片加载失败也能标记为已加载
+        const timeout = setTimeout(() => {
+            console.warn('Image loading timeout, marking as loaded anyway');
+            this.imagesLoaded = true;
+        }, 5000);
+
+        const checkComplete = () => {
+            loadedCount++;
+            if (loadedCount === totalImages) {
+                clearTimeout(timeout);
+                this.imagesLoaded = true;
+                console.log('All images loaded successfully');
+            }
+        };
 
         imageFiles.forEach(imageFile => {
             const img = new Image();
             img.onload = () => {
-                loadedCount++;
-                if (loadedCount === imageFiles.length) {
-                    this.imagesLoaded = true;
-                    this.gameLoop();
-                }
+                console.log(`Image loaded: ${imageFile.src}`);
+                checkComplete();
             };
             img.onerror = () => {
                 console.error(`Failed to load image: ${imageFile.src}`);
-                loadedCount++;
-                if (loadedCount === imageFiles.length) {
-                    this.imagesLoaded = true;
-                    this.gameLoop();
-                }
+                // 创建一个空的图片对象作为占位符
+                const placeholder = new Image();
+                placeholder.width = 50;
+                placeholder.height = 50;
+                this.images[imageFile.name] = placeholder;
+                checkComplete();
             };
             img.src = imageFile.src;
             this.images[imageFile.name] = img;
         });
+
+        // 如果没有图片需要加载，直接标记为已加载
+        if (totalImages === 0) {
+            this.imagesLoaded = true;
+        }
     }
 
     loadBackgroundImage() {
@@ -127,23 +146,39 @@ class SpaceFighterGame {
             }
         });
 
-        // Menu buttons
-        document.getElementById('startButton').addEventListener('click', () => this.startGame());
-        document.getElementById('instructionsButton').addEventListener('click', () => this.showInstructions());
-        document.getElementById('backButton').addEventListener('click', () => this.showMenu());
-        document.getElementById('restartButton').addEventListener('click', () => this.restartGame());
-        document.getElementById('resumeButton').addEventListener('click', () => this.resumeGame());
-        document.getElementById('mainMenuButton').addEventListener('click', () => this.showMenu());
+        // Menu buttons (安全地绑定事件)
+        const startBtn = document.getElementById('startButton');
+        const instructionsBtn = document.getElementById('instructionsButton');
+        const backBtn = document.getElementById('backButton');
+        const restartBtn = document.getElementById('restartButton');
+        const resumeBtn = document.getElementById('resumeButton');
+        const menuBtn = document.getElementById('mainMenuButton');
+        const pauseMenuBtn = document.getElementById('pauseMenuButton');
+        const backgroundSelect = document.getElementById('backgroundSelect');
+        
+        if (startBtn) startBtn.addEventListener('click', () => this.startGame());
+        if (instructionsBtn) instructionsBtn.addEventListener('click', () => this.showInstructions());
+        if (backBtn) backBtn.addEventListener('click', () => this.showMenu());
+        if (restartBtn) restartBtn.addEventListener('click', () => this.restartGame());
+        if (resumeBtn) resumeBtn.addEventListener('click', () => this.resumeGame());
+        if (menuBtn) menuBtn.addEventListener('click', () => this.showMenu());
+        if (pauseMenuBtn) pauseMenuBtn.addEventListener('click', () => this.showMenu());
+        if (backgroundSelect) {
+            backgroundSelect.addEventListener('change', (e) => {
+                this.selectedBackground = e.target.value;
+                this.loadBackgroundImage();
+            });
+        }
     }
 
     startGame() {
-        // Read weapon persist mode from UI
+        // Read weapon persist mode from UI with safety check
         const weaponPersistSelect = document.getElementById('weaponPersist');
-        this.weaponPersistMode = weaponPersistSelect.value;
+        this.weaponPersistMode = weaponPersistSelect ? weaponPersistSelect.value : 'permanent';
 
-        // Read background selection from UI
+        // Read background selection from UI with safety check
         const backgroundSelect = document.getElementById('backgroundSelect');
-        this.selectedBackground = backgroundSelect.value;
+        this.selectedBackground = backgroundSelect ? backgroundSelect.value : 'default';
         this.backgroundY = 0; // Reset background position
         this.loadBackgroundImage();
 
@@ -221,30 +256,43 @@ class SpaceFighterGame {
     }
 
     updateUI() {
-        document.getElementById('scoreValue').textContent = this.score;
-        document.getElementById('levelValue').textContent = this.level;
-        document.getElementById('livesValue').textContent = this.lives;
-        document.getElementById('bombsValue').textContent = this.bombs;
+        // 安全地更新UI元素，避免在元素不存在时出错
+        const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
+        const livesElement = document.getElementById('lives');
+        const bombsElement = document.getElementById('bombs');
+        
+        if (scoreElement) scoreElement.textContent = this.score;
+        if (levelElement) levelElement.textContent = this.level;
+        if (livesElement) livesElement.textContent = this.lives;
+        if (bombsElement) bombsElement.textContent = this.bombs;
 
-        // Update power-up indicators
-        if (this.weaponBoostLevel > 0) {
-            document.getElementById('weaponBoost').style.display = 'block';
-            if (this.weaponPersistMode === 'permanent') {
-                document.getElementById('weaponBoost').innerHTML = `武器增强 x${this.weaponBoostLevel} (永久)`;
+        // Update power-up indicators (安全地访问元素)
+        const weaponBoostElement = document.getElementById('weaponBoost');
+        if (weaponBoostElement) {
+            if (this.weaponBoostLevel > 0) {
+                weaponBoostElement.style.display = 'block';
+                if (this.weaponPersistMode === 'permanent') {
+                    weaponBoostElement.innerHTML = `武器增强 x${this.weaponBoostLevel} (永久)`;
+                } else {
+                    const timeLeft = Math.ceil(this.weaponBoostTimer / 1000);
+                    weaponBoostElement.innerHTML = `武器增强 x${this.weaponBoostLevel} (${timeLeft}s)`;
+                }
             } else {
-                const timeLeft = Math.ceil(this.weaponBoostTimer / 1000);
-                document.getElementById('weaponBoost').innerHTML = `武器增强 x${this.weaponBoostLevel} (${timeLeft}s)`;
+                weaponBoostElement.style.display = 'none';
             }
-        } else {
-            document.getElementById('weaponBoost').style.display = 'none';
         }
 
-        if (this.invincible) {
-            document.getElementById('invincibilityTimer').style.display = 'block';
-            document.getElementById('invincibilityTime').textContent = Math.ceil(this.invincibilityTimer / 1000);
-        } else {
-            document.getElementById('invincibilityTimer').style.display = 'none';
-        }
+        const invincibilityTimerElement = document.getElementById('invincibilityTimer');
+        const invincibilityTimeElement = document.getElementById('invincibilityTime');
+        if (invincibilityTimerElement && invincibilityTimeElement) {
+            if (this.invincible) {
+                invincibilityTimerElement.style.display = 'block';
+                invincibilityTimeElement.textContent = Math.ceil(this.invincibilityTimer / 1000);
+            } else {
+                 invincibilityTimerElement.style.display = 'none';
+             }
+         }
     }
 
     gameLoop(currentTime) {
@@ -737,5 +785,12 @@ class Particle {
 
 // Initialize game when page loads
 window.addEventListener('load', () => {
-    new SpaceFighterGame();
+    const game = new SpaceFighterGame();
+    // 确保游戏始终从菜单状态开始
+    game.gameState = 'menu';
+    // 立即开始渲染循环，不等待图片加载
+    // 使用requestAnimationFrame来正确启动游戏循环
+    requestAnimationFrame((time) => game.gameLoop(time));
+    // 将游戏实例暴露到全局作用域，便于调试和测试
+    window.game = game;
 });

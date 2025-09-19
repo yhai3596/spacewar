@@ -251,8 +251,8 @@ class SpaceFighterGame {
         if (this.gameState === 'playing') {
             const deltaTime = currentTime - this.lastTime;
             this.update(deltaTime);
-            this.render();
         }
+        this.render();
         this.lastTime = currentTime;
         requestAnimationFrame((time) => this.gameLoop(time));
     }
@@ -358,13 +358,15 @@ class SpaceFighterGame {
         // Draw background
         this.drawBackground();
 
-        // Draw game objects
-        this.player.draw(this.ctx, this.invincible, this.images.player);
+        // Only draw game objects when playing
+        if (this.gameState === 'playing') {
+            this.player.draw(this.ctx, this.invincible, this.images.player);
 
-        this.bullets.forEach(bullet => bullet.draw(this.ctx));
-        this.enemies.forEach(enemy => enemy.draw(this.ctx));
-        this.powerUps.forEach(powerUp => powerUp.draw(this.ctx));
-        this.particles.forEach(particle => particle.draw(this.ctx));
+            this.bullets.forEach(bullet => bullet.draw(this.ctx));
+            this.enemies.forEach(enemy => enemy.draw(this.ctx));
+            this.powerUps.forEach(powerUp => powerUp.draw(this.ctx));
+            this.particles.forEach(particle => particle.draw(this.ctx));
+        }
     }
 
     drawBackground() {

@@ -204,19 +204,27 @@ class SpaceFighterGame {
 
     pauseGame() {
         this.gameState = 'paused';
-        document.getElementById('pauseScreen').style.display = 'block';
+        const pauseScreenElement = document.getElementById('pauseScreen');
+        if (pauseScreenElement) pauseScreenElement.style.display = 'block';
     }
 
     resumeGame() {
         this.gameState = 'playing';
-        document.getElementById('pauseScreen').style.display = 'none';
+        const pauseScreenElement = document.getElementById('pauseScreen');
+        if (pauseScreenElement) pauseScreenElement.style.display = 'none';
     }
 
     gameOver() {
         this.gameState = 'gameOver';
-        document.getElementById('finalScore').textContent = this.score;
-        document.getElementById('finalLevel').textContent = this.level;
-        document.getElementById('gameOverScreen').style.display = 'block';
+
+        // 安全地更新游戏结束界面
+        const finalScoreElement = document.getElementById('finalScore');
+        const finalLevelElement = document.getElementById('finalLevel');
+        const gameOverScreenElement = document.getElementById('gameOverScreen');
+
+        if (finalScoreElement) finalScoreElement.textContent = this.score;
+        if (finalLevelElement) finalLevelElement.textContent = this.level;
+        if (gameOverScreenElement) gameOverScreenElement.style.display = 'block';
     }
 
     restartGame() {
@@ -226,18 +234,27 @@ class SpaceFighterGame {
     showMenu() {
         this.gameState = 'menu';
         this.hideAllMenus();
-        document.getElementById('gameMenu').style.display = 'block';
-        document.getElementById('instructions').style.display = 'none';
+
+        const gameMenuElement = document.getElementById('gameMenu');
+        const instructionsElement = document.getElementById('instructions');
+
+        if (gameMenuElement) gameMenuElement.style.display = 'block';
+        if (instructionsElement) instructionsElement.style.display = 'none';
     }
 
     showInstructions() {
-        document.getElementById('instructions').style.display = 'block';
+        const instructionsElement = document.getElementById('instructions');
+        if (instructionsElement) instructionsElement.style.display = 'block';
     }
 
     hideAllMenus() {
-        document.getElementById('gameMenu').style.display = 'none';
-        document.getElementById('gameOverScreen').style.display = 'none';
-        document.getElementById('pauseScreen').style.display = 'none';
+        const gameMenuElement = document.getElementById('gameMenu');
+        const gameOverScreenElement = document.getElementById('gameOverScreen');
+        const pauseScreenElement = document.getElementById('pauseScreen');
+
+        if (gameMenuElement) gameMenuElement.style.display = 'none';
+        if (gameOverScreenElement) gameOverScreenElement.style.display = 'none';
+        if (pauseScreenElement) pauseScreenElement.style.display = 'none';
     }
 
     useBomb() {
@@ -256,12 +273,12 @@ class SpaceFighterGame {
     }
 
     updateUI() {
-        // 安全地更新UI元素，避免在元素不存在时出错
-        const scoreElement = document.getElementById('score');
-        const levelElement = document.getElementById('level');
-        const livesElement = document.getElementById('lives');
-        const bombsElement = document.getElementById('bombs');
-        
+        // 安全地更新UI元素，使用正确的ID
+        const scoreElement = document.getElementById('scoreValue');
+        const levelElement = document.getElementById('levelValue');
+        const livesElement = document.getElementById('livesValue');
+        const bombsElement = document.getElementById('bombsValue');
+
         if (scoreElement) scoreElement.textContent = this.score;
         if (levelElement) levelElement.textContent = this.level;
         if (livesElement) livesElement.textContent = this.lives;

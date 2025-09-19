@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太空战机</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="gameUI">
+            <div id="hud">
+                <div id="score">分数: <span id="scoreValue">0</span></div>
+                <div id="level">关卡: <span id="levelValue">1</span></div>
+                <div id="lives">生命: <span id="livesValue">3</span></div>
+                <div id="bombs">炸弹: <span id="bombsValue">0</span></div>
+            </div>
+            <div id="powerUps">
+                <div id="invincibilityTimer" class="powerup-indicator" style="display: none;">
+                    无敌: <span id="invincibilityTime">0</span>s
+                </div>
+                <div id="weaponBoost" class="powerup-indicator" style="display: none;">
+                    武器增强
+                </div>
+            </div>
+        </div>
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div id="gameMenu" class="menu">
+            <h1>太空战机</h1>
+            <div id="weaponPersistOption" class="option-group">
+                <label for="weaponPersist">武器强化效果:</label>
+                <select id="weaponPersist" class="option-select">
+                    <option value="permanent">保持持续 (直到失去生命)</option>
+                    <option value="timed">限时15秒</option>
+                </select>
+            </div>
+            <div id="backgroundOption" class="option-group">
+                <label for="backgroundSelect">游戏背景:</label>
+                <select id="backgroundSelect" class="option-select">
+                    <option value="default">默认星空</option>
+                    <option value="background1.png">背景1</option>
+                    <option value="background2.png">背景2</option>
+                </select>
+            </div>
+            <button id="startButton" class="menu-button">开始游戏</button>
+            <button id="instructionsButton" class="menu-button">游戏说明</button>
+            <div id="instructions" class="instructions" style="display: none;">
+                <h3>游戏说明:</h3>
+                <ul>
+                    <li>使用鼠标控制飞船移动</li>
+                    <li>自动发射激光击败敌人</li>
+                    <li>收集特殊物品获得能力:</li>
+                    <li>🔫 武器增强 - 提升火力</li>
+                    <li>🛡️ 无敌护盾 - 暂时无敌</li>
+                    <li>💣 炸弹 - 清除所有敌人</li>
+                    <li>按空格键使用炸弹</li>
+                </ul>
+                <button id="backButton" class="menu-button">返回</button>
+            </div>
+        </div>
+        <div id="gameOverScreen" class="menu" style="display: none;">
+            <h2>游戏结束</h2>
+            <p>最终分数: <span id="finalScore">0</span></p>
+            <p>到达关卡: <span id="finalLevel">1</span></p>
+            <button id="restartButton" class="menu-button">重新开始</button>
+        </div>
+        <div id="pauseScreen" class="menu" style="display: none;">
+            <h2>游戏暂停</h2>
+            <button id="resumeButton" class="menu-button">继续游戏</button>
+            <button id="mainMenuButton" class="menu-button">返回主菜单</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>

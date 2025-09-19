@@ -1,0 +1,13 @@
+{
+  "name": "space-fighter-game",
+  "version": "1.0.0",
+  "description": "A space shooter game with dynamic backgrounds",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "start": "python3 -m http.server 8000"
+  },
+  "keywords": ["game", "javascript", "canvas", "space", "shooter"],
+  "author": "yhai",
+  "license": "MIT"
+}
